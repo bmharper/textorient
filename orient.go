@@ -8,6 +8,8 @@ import "C"
 import (
 	"fmt"
 	"unsafe"
+
+	"github.com/bmharper/cimg/v2"
 )
 
 // An Orientation neural network
@@ -32,10 +34,42 @@ func LoadNN(baseFilename string) (*Orient, error) {
 	return orient, nil
 }
 
+// Run on a whole image
+func (o *Orient) RunImage(img *cimg.Image) (int, error) {
+	tiles := SplitImage(img, 200, 32)
+	angleCount := [4]int{}
+	for _, tile := range tiles {
+		denseTile := tile
+		if tile.Stride != tile.Width {
+			// The NN wants a dense image buffer (stride == width).
+			// Our SplitImage function returns deep references into the image, which makes the stride of our tiles
+			// equal to the tile of the whole image. So we must clone to the tiles to create dense buffers.
+			denseTile = tile.Clone()
+		}
+		orientation, confidence, err := o.RunTile(denseTile.Pixels, denseTile.Width, denseTile.Height)
+		if err != nil {
+			return 0, err
+		}
+		if confidence > 0.5 {
+			angleCount[orientation]++
+		}
+	}
+	// Find the most common angle
+	maxCount := 0
+	bestOrient := 0
+	for i := 0; i < 4; i++ {
+		if angleCount[i] > maxCount {
+			maxCount = angleCount[i]
+			bestOrient = i
+		}
+	}
+	return bestOrient, nil
+}
+
 // Run the orientation network on a single 32x32 grayscale (8-bit) image.
 // orientation returned is one of 0,1,2,3 for 0,90,180,270 degrees.
 // confidence is a value between 0 and 1 indicating the confidence of the prediction.
-func (o *Orient) Run(image []byte, width, height int) (orientation int, confidence float32, err error) {
+func (o *Orient) RunTile(image []byte, width, height int) (orientation int, confidence float32, err error) {
 	if width != 32 || height != 32 {
 		return 0, 0, fmt.Errorf("image must be 32x32 pixels")
 	}

@@ -24,7 +24,7 @@ func TestOrient(t *testing.T) {
 		angle := float64(iangle) * 90
 		copy := cimg.NewImage(image.Width, image.Height, image.Format)
 		cimg.Rotate(image, copy, angle*math.Pi/180, nil)
-		orientation, confidence, err := orient.Run(copy.Pixels, copy.Width, copy.Height)
+		orientation, confidence, err := orient.RunTile(copy.Pixels, copy.Width, copy.Height)
 		if err != nil {
 			t.Fatalf("Run failed: %v", err)
 		}

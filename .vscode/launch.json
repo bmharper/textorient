@@ -5,6 +5,17 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
+			"name": "orient (Go)",
+			"type": "go",
+			"request": "launch",
+			"mode": "debug",
+			"program": "cmd/orient/orient.go",
+			"cwd": "${workspaceFolder}",
+			"args": [
+				"../docangle/testimages/private/bpm_1_X1.jpg"
+			],
+		},
+		{
 			"name": "sample C++",
 			"type": "cppdbg",
 			"request": "launch",
