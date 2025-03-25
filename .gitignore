@@ -1,5 +1,5 @@
 /sample
 /straighten
-text_angle_classifier.ncnn.bin
-text_angle_classifier.ncnn.param
+#text_angle_classifier.ncnn.bin
+#text_angle_classifier.ncnn.param
 stb_image.h
