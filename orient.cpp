@@ -1,16 +1,17 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <vector>
 #include <string>
 
 // NCNN includes
 #include "net.h"
+#include "datareader.h"
 
 extern "C" {
 
 // Load a model file. filename is the base name, without the '.ncnn.param' and '.ncnn.bin' extensions.
 // Returns null if the model fails to load.
-void* LoadOrientationNN(const char* filename) {
-	// Initialize NCNN
+void* LoadOrientationNNFromFiles(const char* filename) {
 	ncnn::Net* net = new ncnn::Net();
 
 	std::string fnParam = filename;
@@ -25,6 +26,27 @@ void* LoadOrientationNN(const char* filename) {
 	}
 	if (net->load_model(fnBin.c_str()) != 0) {
 		fprintf(stderr, "Error: Failed to load model file '%s'\n", fnBin.c_str());
+		return nullptr;
+	}
+
+	return net;
+}
+
+// Load from memory.
+// The memory must remain after this function call, and may only be freed after deleting the model.
+void* LoadOrientationNNFromMemory(const char* param, const char* bin, size_t binBytes) {
+	ncnn::Net* net = new ncnn::Net();
+
+	// Load model from memory
+	int paramR = net->load_param_mem((const char*) param);
+	if (paramR != 0) {
+		fprintf(stderr, "Error: Failed to load param from memory (error %d)\n", paramR);
+		return nullptr;
+	}
+
+	int binBytesLoaded = net->load_model((const unsigned char*) bin);
+	if (binBytesLoaded != binBytes) {
+		fprintf(stderr, "Error: Failed to load model bin from memory (%d bytes read instead of %d)\n", (int) binBytesLoaded, (int) binBytes);
 		return nullptr;
 	}
 

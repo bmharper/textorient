@@ -7,6 +7,7 @@ package textorient
 import "C"
 
 import (
+	_ "embed"
 	"fmt"
 	"math"
 	"unsafe"
@@ -14,6 +15,12 @@ import (
 	"github.com/bmharper/cimg/v2"
 	"github.com/bmharper/docangle"
 )
+
+//go:embed text_angle_classifier.ncnn.param
+var nnParamFile string
+
+//go:embed text_angle_classifier.ncnn.bin
+var nnBinFile string
 
 const TileSize = 32
 
@@ -26,22 +33,37 @@ const (
 
 // An Orientation neural network
 type Orient struct {
-	nn unsafe.Pointer
+	nn     unsafe.Pointer
+	cParam *C.char
+	cBin   *C.char
 }
 
-// LoadNN loads a neural network from a file.
+// NewOrient creates a new Orient struct and loads the neural network.
 // The network must be closed after use, or you will leak C++ memory.
-func NewOrient(baseFilename string) (*Orient, error) {
-	// Convert Go string to C string
-	cBaseFilename := C.CString(baseFilename)
-	defer C.free(unsafe.Pointer(cBaseFilename))
-	cOrient := C.LoadOrientationNN(cBaseFilename)
+func NewOrient() (*Orient, error) {
+	// If we were loading from disk:
+	//var baseFilename string
+	//// Convert Go string to C string
+	//cBaseFilename := C.CString(baseFilename)
+	//defer C.free(unsafe.Pointer(cBaseFilename))
+	//cOrient := C.LoadOrientationNNFromFiles(cBaseFilename)
+
+	// These memory blocks must remain for the duration of the model's life
+	cParam := C.CString(nnParamFile)
+	cBin := C.CString(nnBinFile)
+
+	cOrient := C.LoadOrientationNNFromMemory(cParam, cBin, C.size_t(len(nnBinFile)))
+
 	if cOrient == nil {
+		C.free(unsafe.Pointer(cParam))
+		C.free(unsafe.Pointer(cBin))
 		return nil, fmt.Errorf("failed to load neural network")
 	}
 	// Create a new Orient struct
 	orient := &Orient{
-		nn: cOrient,
+		nn:     cOrient,
+		cParam: cParam,
+		cBin:   cBin,
 	}
 	return orient, nil
 }
@@ -171,6 +193,8 @@ func (o *Orient) getTileOrientation(image []byte, width, height int) (orientatio
 
 // Close the neural network (free the C++ NCNN object)
 func (o *Orient) Close() {
+	C.free(unsafe.Pointer(o.cParam))
+	C.free(unsafe.Pointer(o.cBin))
 	if o.nn != nil {
 		C.FreeOrientationNN(o.nn)
 		o.nn = nil

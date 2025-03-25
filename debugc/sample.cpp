@@ -3,9 +3,15 @@
 #include <assert.h>
 
 // Debug
-// g++ -g -O0 -o sample debugc/sample.cpp -lncnn -lgomp -I./ncnn/build/src -I./ncnn/src -I./debugc -L./ncnn/build/src
+// mkdir ncnn/debug && cd ncnn/debug
+// cmake -DCMAKE_BUILD_TYPE=Debug -DNCNN_BUILD_TOOLS=ON -DNCNN_BUILD_EXAMPLES=OFF -DNCNN_BUILD_BENCHMARK=OFF -DNCNN_BUILD_TESTS=OFF ..
+// make -jX
+// g++ -g -O0 -o sample debugc/sample.cpp -lncnnd -lgomp -I./ncnn/debug/src -I./ncnn/src -I./debugc -L./ncnn/debug/src
 
 // Release
+// mkdir ncnn/build && cd ncnn/build
+// cmake -DNCNN_BUILD_TOOLS=ON -DNCNN_BUILD_EXAMPLES=OFF -DNCNN_BUILD_BENCHMARK=OFF -DNCNN_BUILD_TESTS=OFF ..
+// make -jX
 // g++ -O3 -o sample debugc/sample.cpp -lncnn -lgomp -I./ncnn/build/src -I./ncnn/src -I./debugc -L./ncnn/build/src
 
 // NCNN includes
@@ -14,6 +20,33 @@
 // STB image includes
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+
+bool LoadFileIntoMemory(const char* filename, void*& buf, size_t& size) {
+	FILE* fp = fopen(filename, "rb");
+	if (!fp) {
+		fprintf(stderr, "Error: Failed to open file '%s'\n", filename);
+		return false;
+	}
+	fseek(fp, 0, SEEK_END);
+	size = ftell(fp);
+	fseek(fp, 0, SEEK_SET);
+	buf = malloc(size + 1);
+	if (!buf) {
+		fprintf(stderr, "Error: Failed to allocate memory for file '%s'\n", filename);
+		fclose(fp);
+		return false;
+	}
+	size_t bytes_read = fread(buf, 1, size, fp);
+	if (bytes_read != size) {
+		fprintf(stderr, "Error: Failed to read file '%s'\n", filename);
+		free(buf);
+		fclose(fp);
+		return false;
+	}
+	((char*) buf)[size] = 0; // Null-terminate the buffer
+	fclose(fp);
+	return true;
+}
 
 int main(int argc, char** argv) {
 	if (argc != 2) {
@@ -41,18 +74,39 @@ int main(int argc, char** argv) {
 	// Initialize NCNN
 	ncnn::Net net;
 
-	// Load model
-	if (net.load_param("text_angle_classifier.ncnn.param") != 0) {
-		fprintf(stderr, "Error: Failed to load param file\n");
+	void*  mModel = nullptr;
+	void*  mParam = nullptr;
+	size_t sModel = 0;
+	size_t sParam = 0;
+
+	LoadFileIntoMemory("text_angle_classifier.ncnn.bin", mModel, sModel);
+	LoadFileIntoMemory("text_angle_classifier.ncnn.param", mParam, sParam);
+
+	if (net.load_param_mem((const char*) mParam) != 0) {
+		fprintf(stderr, "Error: Failed to load param file from memory\n");
 		stbi_image_free(img_data);
 		return -1;
 	}
 
-	if (net.load_model("text_angle_classifier.ncnn.bin") != 0) {
-		fprintf(stderr, "Error: Failed to load model file\n");
+	int rr = net.load_model((const unsigned char*) mModel);
+	if (rr != sModel) {
+		fprintf(stderr, "Error: Failed to load model weights file from memory\n");
 		stbi_image_free(img_data);
 		return -1;
 	}
+
+	// Load model
+	//	if (net.load_param("text_angle_classifier.ncnn.param") != 0) {
+	//		fprintf(stderr, "Error: Failed to load param file\n");
+	//		stbi_image_free(img_data);
+	//		return -1;
+	//	}
+	//
+	//	if (net.load_model("text_angle_classifier.ncnn.bin") != 0) {
+	//		fprintf(stderr, "Error: Failed to load model file\n");
+	//		stbi_image_free(img_data);
+	//		return -1;
+	//	}
 
 	// Prepare input
 	ncnn::Mat in = ncnn::Mat::from_pixels(img_data, ncnn::Mat::PIXEL_GRAY, 32, 32);

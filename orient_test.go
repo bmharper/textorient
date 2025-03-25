@@ -9,7 +9,7 @@ import (
 )
 
 func TestOrient(t *testing.T) {
-	orient, err := NewOrient("text_angle_classifier")
+	orient, err := NewOrient()
 	if err != nil {
 		t.Fatalf("NewOrient failed: %v", err)
 	}

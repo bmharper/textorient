@@ -1,0 +1,10 @@
+#!/bin/bash
+
+for file in "$1"/*.{jpg,jpeg,png}; do
+    if [ -f "$file" ]; then
+		base=$(basename "$file")
+		output="$2/${base%.*}.jpg"
+        echo "Processing: $base, writing to $output"
+		./straighten "$file" "$output"
+    fi
+done
