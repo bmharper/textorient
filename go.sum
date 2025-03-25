@@ -1,5 +1,9 @@
 github.com/bmharper/cimg/v2 v2.1.2 h1:3uoZc9mLZmbtHKOQHzs3iCP734HL5nkCfMFSuc9I7iw=
 github.com/bmharper/cimg/v2 v2.1.2/go.mod h1:rAWo+yXX5JwBrhGnbRWfG/XqvAODacF3StyEjZrKYZw=
+github.com/bmharper/cimg/v2 v2.1.3 h1:+7r6OoaQioOKDUTmknFKJHq0QhtNZ6IOAMd/8ArZNIg=
+github.com/bmharper/cimg/v2 v2.1.3/go.mod h1:rAWo+yXX5JwBrhGnbRWfG/XqvAODacF3StyEjZrKYZw=
+github.com/bmharper/docangle v1.0.1 h1:zgin5pXm8EVQeMDQFdELtJoNXarXn4r2ZkpUB/xZ7hw=
+github.com/bmharper/docangle v1.0.1/go.mod h1:SY/CHuIJRAVFXD+BvlOgJas9fZc1ac0gg320amfTHpQ=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dsoprea/go-exif/v2 v2.0.0-20200321225314-640175a69fe4/go.mod h1:Lm2lMM2zx8p4a34ZemkaUV95AnMl4ZvLbCUbwOvLC2E=

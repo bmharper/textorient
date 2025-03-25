@@ -1,14 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/bmharper/cimg/v2"
 	"github.com/bmharper/textorient"
 )
-
-// Note that this does not straighten the image before determining orientation
 
 func check(err error) {
 	if err != nil {
@@ -18,13 +15,14 @@ func check(err error) {
 
 func main() {
 	inputFilename := os.Args[1]
-	raw, err := cimg.ReadFile(inputFilename)
+	outputFilename := os.Args[2]
+	org, err := cimg.ReadFile(inputFilename)
 	check(err)
+
 	orient, err := textorient.NewOrient("text_angle_classifier")
 	check(err)
-	defer orient.Close()
 
-	angle, err := orient.GetImageOrientation(raw)
+	straight, err := orient.StraightenImage(org, nil)
 	check(err)
-	fmt.Printf("Orientation: %d\n", angle*90)
+	straight.WriteJPEG(outputFilename, cimg.MakeCompressParams(cimg.Sampling444, 95, 0), 0644)
 }

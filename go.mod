@@ -3,11 +3,12 @@ module github.com/bmharper/textorient
 go 1.24.1
 
 require (
-	github.com/bmharper/cimg/v2 v2.1.2
+	github.com/bmharper/cimg/v2 v2.1.3
 	github.com/stretchr/testify v1.10.0
 )
 
 require (
+	github.com/bmharper/docangle v1.0.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dsoprea/go-exif/v3 v3.0.1 // indirect
 	github.com/dsoprea/go-iptc v0.0.0-20200610044640-bc9ca208b413 // indirect
