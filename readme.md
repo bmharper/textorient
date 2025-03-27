@@ -19,6 +19,8 @@ The model's accuracy on the validation set is 80%, which is why we run the model
 on approximately 100 randomly sampled tiles from the image, and choose the
 majority vote of the predictions.
 
+### How it works
+
 The function `Orient.StraightenImage()` consists of a few steps:
 
 1. Run [docangle](https://github.com/bmharper/docangle) to compute the angle of
