@@ -21,7 +21,7 @@ majority vote of the predictions.
 
 ### How it works
 
-The function `Orient.StraightenImage()` consists of a few steps:
+The function `Orient.StraightenAndMakeUpright()` consists of a few steps:
 
 1. Run [docangle](https://github.com/bmharper/docangle) to compute the angle of
    the page (see `docangle` notes below).

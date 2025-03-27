@@ -22,7 +22,7 @@ func main() {
 	orient, err := textorient.NewOrient()
 	check(err)
 
-	straight, err := orient.StraightenImage(org, nil)
+	straight, err := orient.StraightenAndMakeUpright(org, nil)
 	check(err)
 	straight.WriteJPEG(outputFilename, cimg.MakeCompressParams(cimg.Sampling444, 95, 0), 0644)
 }

@@ -81,10 +81,8 @@ func NewWhiteLinesParams() *docangle.WhiteLinesParams {
 }
 
 // Use github.com/bmharper/docangle to compute the angle of the page, and rotate the image
-// to negate that angle. Then run our text orientation neural network to figure out the
-// orientation of the page, an finally rotate the image so that the returned image
-// has upright text.
-func (o *Orient) StraightenImage(img *cimg.Image, params *docangle.WhiteLinesParams) (*cimg.Image, error) {
+// to negate that angle. If the angle is 0, return 'img'
+func (o *Orient) Straighten(img *cimg.Image, params *docangle.WhiteLinesParams) *cimg.Image {
 	gray := img
 	if img.Stride != img.Width*img.NChan() || img.Format != cimg.PixelFormatGRAY {
 		gray = img.ToGray()
@@ -102,43 +100,56 @@ func (o *Orient) StraightenImage(img *cimg.Image, params *docangle.WhiteLinesPar
 	// to the original.
 	var straightened *cimg.Image
 	_, angleDeg := docangle.GetAngleWhiteLines(&dimg, params)
+	if angleDeg == 0 {
+		return img
+	}
 	if math.Abs(angleDeg) > 45 {
 		straightened = cimg.NewImage(img.Height, img.Width, img.Format)
 	} else {
 		straightened = cimg.NewImage(img.Width, img.Height, img.Format)
 	}
 	cimg.Rotate(img, straightened, -angleDeg*math.Pi/180, nil)
+	return straightened
+}
 
-	// Now that we have a straightened image, we can run our NN to detect the orientation
-	orient, err := o.GetImageOrientation(straightened)
+// Combine Straighten and MakeUpright
+func (o *Orient) StraightenAndMakeUpright(img *cimg.Image, params *docangle.WhiteLinesParams) (*cimg.Image, error) {
+	return o.MakeUpright(o.Straighten(img, params))
+}
+
+// MakeUpright runs the neural network to determine if the page is upright.
+// If necessary, rotate the page by -90, 90, or 180 degrees and return the upright image.
+// If the page is already upright, return 'img'
+func (o *Orient) MakeUpright(img *cimg.Image) (*cimg.Image, error) {
+	orient, err := o.GetImageOrientation(img)
 	if err != nil {
 		return nil, err
 	}
 
 	var final *cimg.Image
 	if orient == Angle0 {
-		final = straightened
+		final = img
 	} else if orient == Angle90 {
-		final = cimg.NewImage(straightened.Height, straightened.Width, straightened.Format)
-		cimg.Rotate(straightened, final, -90*math.Pi/180, nil)
+		final = cimg.NewImage(img.Height, img.Width, img.Format)
+		cimg.Rotate(img, final, -90*math.Pi/180, nil)
 	} else if orient == Angle270 {
-		final = cimg.NewImage(straightened.Height, straightened.Width, straightened.Format)
-		cimg.Rotate(straightened, final, 90*math.Pi/180, nil)
+		final = cimg.NewImage(img.Height, img.Width, img.Format)
+		cimg.Rotate(img, final, 90*math.Pi/180, nil)
 	} else if orient == Angle180 {
-		final = cimg.NewImage(straightened.Width, straightened.Height, straightened.Format)
-		cimg.Rotate(straightened, final, 180*math.Pi/180, nil)
+		final = cimg.NewImage(img.Width, img.Height, img.Format)
+		cimg.Rotate(img, final, 180*math.Pi/180, nil)
 	}
 
 	return final, nil
 }
 
-// Run on a whole image, and return one of 4 angles
+// Run on a whole image, and return one of 4 angles (Angle0, Angle90, Angle180, Angle270)
 func (o *Orient) GetImageOrientation(img *cimg.Image) (int, error) {
 	tiles := SplitImage(img, 200, TileSize)
 	angleCount := [4]int{}
 	for _, tile := range tiles {
 		denseTile := tile
-		if tile.Stride != tile.Width {
+		if !tile.IsDense() {
 			// The NN wants a dense image buffer (stride == width).
 			// Our SplitImage function returns deep references into the image, which makes the stride of our tiles
 			// equal to the tile of the whole image. So we must clone to the tiles to create dense buffers.
