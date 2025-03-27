@@ -8,7 +8,7 @@ require (
 )
 
 require (
-	github.com/bmharper/docangle v1.0.1 // indirect
+	github.com/bmharper/docangle v1.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dsoprea/go-exif/v3 v3.0.1 // indirect
 	github.com/dsoprea/go-iptc v0.0.0-20200610044640-bc9ca208b413 // indirect
