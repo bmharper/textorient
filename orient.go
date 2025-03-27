@@ -48,6 +48,7 @@ func NewOrient() (*Orient, error) {
 	//defer C.free(unsafe.Pointer(cBaseFilename))
 	//cOrient := C.LoadOrientationNNFromFiles(cBaseFilename)
 
+	// Loading from memory (files embedded into the Go build):
 	// These memory blocks must remain for the duration of the model's life
 	cParam := C.CString(nnParamFile)
 	cBin := C.CString(nnBinFile)

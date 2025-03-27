@@ -2,6 +2,12 @@
 #include <vector>
 #include <assert.h>
 
+// This plain C++ file is kept around for debugging NCNN issues via gdb.
+// If we're running via cgo, then invoking gdb is very painful, so we keep this
+// plain C++ program around for each of debugging.
+
+// To build this, you'll need to download stb_image.h and place it in the same directory as this file.
+
 // Debug
 // mkdir ncnn/debug && cd ncnn/debug
 // cmake -DCMAKE_BUILD_TYPE=Debug -DNCNN_BUILD_TOOLS=ON -DNCNN_BUILD_EXAMPLES=OFF -DNCNN_BUILD_BENCHMARK=OFF -DNCNN_BUILD_TESTS=OFF ..
@@ -14,10 +20,9 @@
 // make -jX
 // g++ -O3 -o sample debugc/sample.cpp -lncnn -lgomp -I./ncnn/build/src -I./ncnn/src -I./debugc -L./ncnn/build/src
 
-// NCNN includes
+// NCNN
 #include "net.h"
 
-// STB image includes
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 

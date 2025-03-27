@@ -77,6 +77,9 @@ func SplitImage(img *cimg.Image, numTiles, size int) []*cimg.Image {
 	return samples
 }
 
+// Return a measure of how "interesting" the image is.
+// When selecting tiles for training or inference, we choose the tiles with the highest perplexity.
+// This allows us to ignore blank tiles, or tiles with very little visual information.
 func Perplexity(img *cimg.Image) float32 {
 	return float32(C.horizontal_perplexity((*C.byte)(&img.Pixels[0]), C.int(img.Width), C.int(img.Height), C.int(img.Stride)))
 }

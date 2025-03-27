@@ -19,7 +19,7 @@ func main() {
 	org, err := cimg.ReadFile(inputFilename)
 	check(err)
 
-	orient, err := textorient.NewOrient("text_angle_classifier")
+	orient, err := textorient.NewOrient()
 	check(err)
 
 	straight, err := orient.StraightenImage(org, nil)

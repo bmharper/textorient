@@ -2,5 +2,6 @@
 	"files.associations": {
 		"Dockerfile-*": "dockerfile",
 		"*.tcc": "cpp"
-	}
+	},
+	"cmake.sourceDirectory": "/home/ben/dev/wefi/textorient/ncnn/tools/pnnx/tests/ncnn"
 }

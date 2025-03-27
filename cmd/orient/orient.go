@@ -20,7 +20,7 @@ func main() {
 	inputFilename := os.Args[1]
 	raw, err := cimg.ReadFile(inputFilename)
 	check(err)
-	orient, err := textorient.NewOrient("text_angle_classifier")
+	orient, err := textorient.NewOrient()
 	check(err)
 	defer orient.Close()
 
