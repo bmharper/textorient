@@ -1,7 +1,6 @@
 package textorient
 
 import (
-	"math/rand/v2"
 	"slices"
 
 	"github.com/bmharper/cimg/v2"
@@ -19,9 +18,6 @@ type tile struct {
 func SplitImage(img *cimg.Image, numTiles, size int) []*cimg.Image {
 	const MaxSize = 2000
 	const EdgePadding = 0.1 // Ignore this much of the image from all sides, because the dense text tends to be in the center of the page
-
-	// Use random sampling to avoid getting unlucky with strided sampling
-	prng := rand.New(rand.NewPCG(123, 456))
 
 	if img.Format != cimg.PixelFormatGRAY {
 		img = img.ToGray()
@@ -63,12 +59,8 @@ func SplitImage(img *cimg.Image, numTiles, size int) []*cimg.Image {
 		}
 		return 0
 	})
-	// Pick the top numTiles * 3 (by perplexity), and then shuffle them
-	tiles = tiles[:min(totalTiles, numTiles*3)]
-	prng.Shuffle(len(tiles), func(i, j int) {
-		tiles[i], tiles[j] = tiles[j], tiles[i]
-	})
-	// Finally, take a random sampling from the top 3x numTiles
+	// Pick the top numTiles (by perplexity)
+	tiles = tiles[:min(totalTiles, numTiles)]
 	samples := make([]*cimg.Image, numTiles)
 	for i := 0; i < numTiles; i++ {
 		samples[i] = tiles[i].img
