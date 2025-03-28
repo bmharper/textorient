@@ -1,7 +1,7 @@
 package textorient
 
-// #cgo CPPFLAGS: -fopenmp -I${SRCDIR}/ncnn/build/src -I${SRCDIR}/ncnn/src
-// #cgo LDFLAGS: -L${SRCDIR}/ncnn/build/src -lncnn -lgomp
+// #cgo CPPFLAGS: -fopenmp -I${SRCDIR}/include/ncnn
+// #cgo linux,amd64 LDFLAGS: -L${SRCDIR}/lib -lncnn_linux_amd64 -lgomp
 // #include <stdlib.h>
 // #include "orient.h"
 import "C"
@@ -146,6 +146,9 @@ func (o *Orient) MakeUpright(img *cimg.Image) (*cimg.Image, error) {
 // Run on a whole image, and return one of 4 angles (Angle0, Angle90, Angle180, Angle270)
 func (o *Orient) GetImageOrientation(img *cimg.Image) (int, error) {
 	tiles := SplitImage(img, 200, TileSize)
+	if len(tiles) == 0 {
+		return 0, fmt.Errorf("Image is too small")
+	}
 	angleCount := [4]int{}
 	for _, tile := range tiles {
 		denseTile := tile

@@ -70,27 +70,10 @@ func example(img *cimg.Image) error {
 }
 ```
 
-## Consuming this package
+## NCNN dependency
 
-In order to consume this package, you must have NCNN built locally. Where you
-choose to download and build it is up to you, but the following example assumes
-you've downloaded it to the current directory (hence the calls to `pwd`).
+This package depends on the NCNN library, which we interface with using cgo.
 
-```bash
-export CGO_CPPFLAGS="-I$(pwd)/ncnn/src -I$(pwd)/ncnn/build/src"
-export CGO_LDFLAGS="-L$(pwd)/ncnn/build/src"
-go build cmd/mytool/mytool.go
-```
-
-You'll need to build NCNN before you can build or run your Go program. Follow
-the instructions below to build NCNN.
-
-## Build NCNN
-
-```bash
-sudo apt install protobuf-compiler build-essential cmake
-git clone https://github.com/Tencent/ncnn.git
-mkdir -p ncnn/build && cd ncnn/build
-cmake -DNCNN_BUILD_TOOLS=ON -DNCNN_BUILD_EXAMPLES=OFF -DNCNN_BUILD_BENCHMARK=OFF -DNCNN_BUILD_TESTS=OFF ..
-make -j8
-```
+Prebuilt libraries and include files are included in this repo, inside the
+`include` and `lib` directories. If your platform is not included, then please
+submit a PR.

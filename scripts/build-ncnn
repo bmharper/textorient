@@ -1,0 +1,34 @@
+#!/bin/bash
+
+set -e
+
+# This script builds NCNN and extracts the built files into our 'lib' and 'include' directories
+# so that consumers of this package don't need NCNN.
+
+# Extract go environment variables
+GOOS=$(go env GOOS)
+GOARCH=$(go env GOARCH)
+
+if [ ! -d "ncnn" ]; then
+	git clone https://github.com/Tencent/ncnn.git 
+fi
+
+mkdir -p ncnn/build && cd ncnn/build
+#cmake -DNCNN_BUILD_TOOLS=ON -DNCNN_BUILD_EXAMPLES=OFF -DNCNN_BUILD_BENCHMARK=OFF -DNCNN_BUILD_TESTS=OFF ..
+cmake -DNCNN_BUILD_TOOLS=OFF -DNCNN_BUILD_EXAMPLES=OFF -DNCNN_BUILD_BENCHMARK=OFF -DNCNN_BUILD_TESTS=OFF -DNCNN_DISABLE_RTTI=ON -DNCNN_DISABLE_EXCEPTION=ON -DNCNN_VULKAN=OFF -DNCNN_PIXEL_DRAWING=OFF -DNCNN_PIXEL_ROTATE=OFF -DNCNN_BF16=OFF -DNCNN_INT8=OFF ..
+make -j8
+cd -
+
+cp ncnn/build/src/libncnn.a lib/libncnn_${GOOS}_${GOARCH}.a
+cp ncnn/src/allocator.h include/ncnn/
+cp ncnn/src/blob.h include/ncnn/
+cp ncnn/src/mat.h include/ncnn/
+cp ncnn/src/net.h include/ncnn/
+cp ncnn/src/option.h include/ncnn/
+cp ncnn/src/modelbin.h include/ncnn/
+cp ncnn/src/layer.h include/ncnn/
+cp ncnn/src/paramdict.h include/ncnn/
+cp ncnn/src/datareader.h include/ncnn/
+cp ncnn/build/src/ncnn_export.h include/ncnn/
+cp ncnn/build/src/platform.h include/ncnn/
+
