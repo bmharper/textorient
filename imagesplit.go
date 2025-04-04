@@ -60,10 +60,10 @@ func SplitImage(img *cimg.Image, numTiles, size int) []*cimg.Image {
 		return 0
 	})
 	// Pick the top numTiles (by perplexity)
-	tiles = tiles[:min(totalTiles, numTiles)]
-	samples := make([]*cimg.Image, numTiles)
-	for i := 0; i < numTiles; i++ {
-		samples[i] = tiles[i].img
+	subset := tiles[:min(totalTiles, numTiles)]
+	samples := make([]*cimg.Image, len(subset))
+	for i := 0; i < len(subset); i++ {
+		samples[i] = subset[i].img
 	}
 
 	return samples
