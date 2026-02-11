@@ -1,5 +1,7 @@
-#include <malloc.h>
 #include <stdlib.h>
+#ifdef __linux__
+#include <malloc.h>
+#endif
 
 void* LoadOrientationNNFromFiles(const char* filename);
 void* LoadOrientationNNFromMemory(const char* param, const char* bin, size_t binBytes);

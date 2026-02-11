@@ -1,7 +1,9 @@
 package textorient
 
-// #cgo CPPFLAGS: -fopenmp -I${SRCDIR}/include/ncnn
+// #cgo CPPFLAGS: -I${SRCDIR}/include/ncnn
+// #cgo linux,amd64 CPPFLAGS: -fopenmp
 // #cgo linux,amd64 LDFLAGS: -L${SRCDIR}/lib -lncnn_linux_amd64 -lgomp
+// #cgo darwin,arm64 LDFLAGS: -L${SRCDIR}/lib -lncnn_darwin_arm64
 // #include <stdlib.h>
 // #include "orient.h"
 import "C"
